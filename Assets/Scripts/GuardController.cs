@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class GuardController : MonoBehaviour
 {
-    Rigidbody2D rb;
-    SpriteRenderer sr;
+    public Animator anim;
     public Vector2 target, lastTarget;
     public float speed, waitTime;
     public int curPoint;
@@ -14,9 +13,8 @@ public class GuardController : MonoBehaviour
 
     void Start ()
     {
-        rb = GetComponent<Rigidbody2D>();
-        sr = GetComponentInChildren<SpriteRenderer>();
         target = patrolPoints[curPoint].transform.position;
+        anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -30,10 +28,12 @@ public class GuardController : MonoBehaviour
     {
         if (transform.position.x != target.x)
         {
+            anim.Play("GuardWalk");
             transform.position = Vector2.MoveTowards(transform.position, new Vector2(target.x, transform.position.y), speed * Time.deltaTime);
         }
         else if(transform.position.x == target.x && !chasing)
         {
+            anim.Play("GuardIdle");
             if (!waiting)
             {
                 waiting = true;
@@ -41,11 +41,11 @@ public class GuardController : MonoBehaviour
             }
         }
 
-        if (target.x > transform.position.x)
+        if (target.x < transform.position.x)
         {
             transform.localScale = new Vector2(1, 1);
         }
-        else if (target.x < transform.position.x)
+        else if (target.x > transform.position.x)
         {
             transform.localScale = new Vector2(-1, 1);
         }
@@ -70,7 +70,7 @@ public class GuardController : MonoBehaviour
         waiting = false;
     }
 
-    void Chase(bool chase)
+    public void Chase(bool chase)
     {
         if(chase == true)
         {
@@ -81,32 +81,6 @@ public class GuardController : MonoBehaviour
         {
             chasing = false;
             target = lastTarget;
-        }
-    }
-
-    void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            Debug.Log("PLAYER WITHIN RANGE");
-
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, collision.transform.position - transform.position);
-            Debug.Log(hit.collider.gameObject.name);
-
-            if (hit.transform.tag == "Player" && !chasing)
-            {
-                Debug.Log("PLAYER SEEN");
-                Chase(true);
-            }
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            Debug.Log("PLAYER LEFT RANGE");
-            Chase(false);
         }
     }
 

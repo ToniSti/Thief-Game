@@ -14,11 +14,6 @@ public class TrapController : MonoBehaviour {
         sr = GetComponentInChildren<SpriteRenderer>();
         sr.sprite = sprites[0];
 	}
-	
-	void Update ()
-    {
-		
-	}
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -49,7 +44,7 @@ public class TrapController : MonoBehaviour {
         if(active && playerIn)
         {
             Debug.Log("!!PLAYER HIT!!");
-            player.GetComponent<PlayerMovement>().StartCoroutine("Flattened");
+            player.GetComponent<PlayerMovement>().Die();
         }
         else
         {
