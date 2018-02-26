@@ -16,6 +16,14 @@ public class ClimbController : MonoBehaviour
         gravitySave = playerRB.gravityScale;
     }
 
+    void Update()
+    {
+        if(Input.GetButtonDown("Jump") && climbing)
+        {
+            StartCoroutine("StopClimb");
+        }
+    }
+
     void OnTriggerStay2D(Collider2D collision)
     {
         if(collision.tag == "Player" && Input.GetAxisRaw("Vertical") != 0 && !climbing)
@@ -25,18 +33,23 @@ public class ClimbController : MonoBehaviour
             player.transform.position = new Vector2(transform.position.x, collision.transform.position.y);
             playerRB.gravityScale = 0;
             playerRB.velocity = Vector2.zero;
-            Physics2D.IgnoreLayerCollision(9, 10, true);
         }
     }
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.tag == "Player" && climbing)
         {
-            climbing = false;
-            player.GetComponent<PlayerMovement>().climbing = false;
-            playerRB.gravityScale = gravitySave;
-            Physics2D.IgnoreLayerCollision(9, 10, false);
+            StartCoroutine("StopClimb");
         }
+    }
+
+    IEnumerator StopClimb()
+    {
+        yield return new WaitForSecondsRealtime(0.01f);
+        climbing = false;
+        player.GetComponent<PlayerMovement>().climbing = false;
+        playerRB.gravityScale = gravitySave;
+        playerRB.velocity = Vector2.zero;
     }
 }

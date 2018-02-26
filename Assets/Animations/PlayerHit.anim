@@ -20,9 +20,9 @@ AnimationClip:
   - curve:
     - time: 0
       value: {fileID: 21300000, guid: a475e13c872f6b54ea1df3c4b0530d83, type: 3}
-    - time: 0.083333336
-      value: {fileID: 21300000, guid: 86a92d268838c8e41be7e1e1e797e3ec, type: 3}
     - time: 0.16666667
+      value: {fileID: 21300000, guid: 86a92d268838c8e41be7e1e1e797e3ec, type: 3}
+    - time: 0.33333334
       value: {fileID: 21300000, guid: a475e13c872f6b54ea1df3c4b0530d83, type: 3}
     attribute: m_Sprite
     path: player
@@ -51,7 +51,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.25
+    m_StopTime: 0.4166667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -73,10 +73,16 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 0.16666667
-    functionName: Attack
+    functionName: Stab
     data: 
-    objectReferenceParameter: {fileID: 1762499626896316, guid: e2784093004d9354087d62950d00915e,
-      type: 2}
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.41666666
+    functionName: StopAttack
+    data: 
+    objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

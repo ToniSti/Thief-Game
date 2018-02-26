@@ -4,13 +4,31 @@ using UnityEngine;
 
 public class HazardKill : MonoBehaviour
 {
-    private void OnCollisionEnter2D(Collision2D collision)
+    public bool deadly = true, canKillEnemy;
+
+    public void SetDeadly()
     {
-        if(collision.transform.tag == "Player")
+        if (!deadly)
         {
-            Debug.Log("PLAYER HIT HAZARD: " + transform.name);
-            collision.transform.GetComponent<PlayerMovement>().Die();
+            deadly = true;
+        }
+        else if(deadly)
+        {
+            deadly = false;
         }
     }
 
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if(collision.transform.tag == "Player" && deadly)
+        {
+            Debug.Log("PLAYER KILLED BY HAZARD: " + transform.name);
+            collision.transform.GetComponent<PlayerMovement>().Die();
+        }
+        else if(collision.transform.tag == "Enemy"&& canKillEnemy && deadly)
+        {
+            Debug.Log(collision.transform.name + " KILLED BY HAZARD: " + transform.name);
+            collision.gameObject.GetComponent<EnemyHealth>().Die();
+        }
+    }
 }

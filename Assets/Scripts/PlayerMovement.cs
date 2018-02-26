@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿//Jonna Majewski kirjoitti alustavan pelaajan liikkumisen ja hyppimisen.
+//Toni Stigell lisäsi kiipeämisen, kuoleman ja animaatiot. Lisäksi sääti aiempia osia uusiin sopiviksi
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,78 +8,35 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour {
 
     Rigidbody2D rb;
-    SpriteRenderer sr;
     Animator anim;
     public Transform groundCheck;
-    public LayerMask ground, floor;
+    public LayerMask ground;
     public float hor, ver, speed, jumpForce, groundRadius;
-    public bool alive, jumping, dJump, climbing, attacking, grounded;
+    public bool canMove, jumping, climbing, grounded;
 
 	void Start ()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponentInChildren<Animator>();
-        alive = true;
 	}
-	
-	void Update ()
+
+    void Update()
     {
-        if (!attacking && !jumping)
-        {
-            hor = Input.GetAxisRaw("Horizontal");
-            ver = Input.GetAxisRaw("Vertical");
-        }
-        
-        if (hor < 0)
-        {
-            sr.flipX = true;
-        }
-        else if (hor > 0)
-        {
-            sr.flipX = false;
-        }
+        hor = Input.GetAxisRaw("Horizontal");
+        ver = Input.GetAxisRaw("Vertical");
 
-        if(Input.GetButtonDown("Jump") && !climbing)
+        if (Input.GetButtonDown("Jump") && !climbing && !jumping && grounded)
         {
-            if (!jumping && grounded)
-            {
-                Jump();
-            }
-            else if (jumping && !dJump)
-            {
-                dJump = true;
-                Jump();
-            }
+            Jump();
         }
-
-        if(Input.GetKeyDown(KeyCode.E))
-        {
-            attacking = true;
-        }
-
-
-        if(attacking)
-        {
-            anim.Play("PlayerHit");
-        }
-        else if(hor != 0)
-        {
-            anim.Play("PlayerWalk");
-        }
-        else if(hor == 0)
-        {
-            anim.Play("PlayerIdle");
-        }
-	}
+    }
 
     void FixedUpdate()
     {
-        if (Physics2D.OverlapCircle(groundCheck.position, groundRadius))
+        if (Physics2D.OverlapCircle(groundCheck.position, groundRadius, ground))
         {
             grounded = true;
             jumping = false;
-            dJump = false;
         }
         else
         {
@@ -85,15 +44,45 @@ public class PlayerMovement : MonoBehaviour {
             jumping = true;
         }
 
-        if (alive)
+        Move();
+    }
+
+    void Move()
+    {
+        if (canMove)
         {
+            anim.SetBool("Climb", climbing);
+
+            if (hor < 0)
+            {
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
+            else if (hor > 0)
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
+
+        
             if (climbing)
             {
+                anim.Play("PlayerClimb");
+
                 rb.velocity = new Vector2(hor, ver) * speed;
+
+                if (ver != 0)
+                {
+                    anim.speed = 1f;
+                }
+                else if (climbing && ver == 0)
+                {
+                    anim.speed = 0f;
+                }
             }
             else
             {
                 rb.velocity = new Vector2(hor * speed, rb.velocity.y);
+                anim.SetFloat("Walk", Mathf.Abs(hor));
+                anim.speed = 1f;
             }
         }
     }
@@ -104,43 +93,19 @@ public class PlayerMovement : MonoBehaviour {
         rb.AddForce(new Vector2(0, jumpForce));
     }
 
-    void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.tag == "Enemy")
-        {
-            Debug.Log("ENEMY IN RANGE");
-
-            if (attacking == true)
-            {
-                Debug.Log("ENEMY HIT");
-
-                if (sr.flipX == false && collision.transform.localScale.x == 1)
-                {
-                    Debug.Log("BACKSTAB");
-                }
-                else if (sr.flipX == true && collision.transform.localScale.x == -1)
-                {
-                    Debug.Log("BACKSTAB");
-                }
-                else
-                {
-                    Debug.Log("FRONTSTAB");
-                }
-            }
-        }
-    }
-
-    public void Attack()
-    {
-        Debug.Log("ATTACK");
-        attacking = false;
-    }
-
     public void Die()
     {
-        alive = false;
-        rb.velocity = Vector2.zero;
-        sr.enabled = false;
         GameObject.FindGameObjectWithTag("GameController").GetComponent<GameCtrl>().StartCoroutine("DeathWait");
+        Destroy(transform.gameObject);
+    }
+
+    public void CanMove(bool can)
+    {
+        canMove = can;
+
+        if(can == false)
+        {
+            rb.velocity = Vector2.zero;
+        }
     }
 }

@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class TrapController : MonoBehaviour {
 
+    Animator anim;
+
     public bool active = false, playerIn = false;
     public float triggerSpeed, rechargeSpeed;
     public Sprite[] sprites;
-    SpriteRenderer sr;
 
 	void Start ()
     {
-        sr = GetComponentInChildren<SpriteRenderer>();
-        sr.sprite = sprites[0];
+        anim = GetComponent<Animator>();
 	}
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -24,49 +24,39 @@ public class TrapController : MonoBehaviour {
 
             if (!active)
             {
-                StartCoroutine("Activate", collision.gameObject);
+                Debug.Log("!!TRAP ACTIVATED!!");
+                active = true;
+                anim.SetBool("Active", true);
             }
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.tag == "Player")
         {
+            Debug.Log("!!TRAP LEFT!!");
             playerIn = false;
         }
     }
 
-    void CheckPlayer(GameObject player)
+    public void CheckPlayer()
     {
-        sr.sprite = sprites[1];
-
-        if(active && playerIn)
+        if(playerIn)
         {
             Debug.Log("!!PLAYER HIT!!");
-            player.GetComponent<PlayerMovement>().Die();
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>().Die();
         }
         else
         {
             Debug.Log("!!TRAP MISSED!!");
         }
-
-        StartCoroutine("ReActivate");
     }
 
-    IEnumerator Activate(GameObject player)
+    public void TrapReady()
     {
-        active = true;
-        yield return new WaitForSecondsRealtime(triggerSpeed);
-        Debug.Log("!!TRAP ACTIVATED!!");
-        CheckPlayer(player);
-    }
-
-    IEnumerator ReActivate()
-    {
-        yield return new WaitForSecondsRealtime(rechargeSpeed);
         Debug.Log("!!TRAP READY!!");
-        sr.sprite = sprites[0];
+        anim.SetBool("Active", false);
         active = false;
     }
 }

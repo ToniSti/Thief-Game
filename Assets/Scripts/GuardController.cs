@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class GuardController : MonoBehaviour
 {
-    public Animator anim;
+    Animator anim;
     public Vector2 target, lastTarget;
-    public float speed, waitTime;
+    public float speed, speedBase, waitTime;
     public int curPoint;
     public bool waiting, chasing;
     public GameObject[] patrolPoints;
 
     void Start ()
     {
+        speed = speedBase;
         target = patrolPoints[curPoint].transform.position;
         anim = GetComponentInChildren<Animator>();
     }
@@ -43,11 +44,11 @@ public class GuardController : MonoBehaviour
 
         if (target.x < transform.position.x)
         {
-            transform.localScale = new Vector2(1, 1);
+            transform.localScale = new Vector2(-1, 1);
         }
         else if (target.x > transform.position.x)
         {
-            transform.localScale = new Vector2(-1, 1);
+            transform.localScale = new Vector2(1, 1);
         }
     }
 
